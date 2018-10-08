@@ -1,0 +1,40 @@
+        #anodes
+        #japc.setParam("ZS1.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",x[0])
+        #japc.setParam("ZS1.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",x[0])         
+        #japc.setParam("ZS2.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",x[0])
+        #japc.setParam("ZS2.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",x[1])
+        #japc.setParam("ZS3.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",x[2])
+        #japc.setParam("ZS3.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",x[3])
+        #japc.setParam("ZS4.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",x[4])
+        #japc.setParam("ZS4.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",x[5])
+        #japc.setParam("ZS5.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",x[6])
+        #japc.setParam("ZS5.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",x[7])
+        
+        
+        
+        #girder
+        #japc.setParam("ZS.LSS2.GIRDER/Setting#downstreamSeptaPosition",x[0])
+        
+
+
+
+japc.subscribeParam( "SPSQC/INTENSITY.PERFORMANCE", myCallback )
+
+
+        def compareSettings(x):
+    print("Acquire position: ", japc.getParam("ZS.LSS2.GIRDER/Acquisition#downstreamSeptaPosition_meas"))
+    if((x[0]+0.1)>japc.getParam("ZS.LSS2.GIRDER/Acquisition#downstreamSeptaPosition_meas") and (x[0]-0.1)<japc.getParam("ZS.LSS2.GIRDER/Acquisition#downstreamSeptaPosition_meas") ):
+        return True
+    else:
+        return False
+    
+
+#bctValue
+def myCallback( parameterName, newValue ):
+    
+    if(newValue["userName"]=="SPS.USER.SFTPRO2"):
+        if(compareSettings(required_x)):
+            if(newValue["extractedIntensity"]>5e8):
+                extracted_intensity.append(newValue["extractedIntensity"])
+                beam_loss.append(japc.getParam("BLRSPS_LSS2/Acquisition#calLosses")[2]*1000.)
+                print( "QC for {0} is: {1}".format(parameterName, newValue["userName"]) )
