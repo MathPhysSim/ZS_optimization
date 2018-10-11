@@ -86,10 +86,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
         for itemName in self.listSelector.getItems():
             item = QListWidgetItem(itemName)
-            if item.text() in self.listSelector.markedItems:
-                item.setBackground(QColor(255, 0, 0))
-            else:
-                item.setBackground(QColor(0, 255, 0))
+#            if item.text() in self.listSelector.markedItems:
+#                item.setBackground(QColor(255, 0, 0))
+#            else:
+            item.setBackground(QColor(0, 255, 0))
             self.listWidget.addItem(item)
         self.listWidget.sortItems()   
         self.listWidget.itemSelectionChanged.connect(self.itemsChanged)
