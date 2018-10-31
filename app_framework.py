@@ -224,7 +224,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 #            print("pass2")
             self.x0 = self.parameterClass.getStartVector()
 #            print("pass3")
-            self.getOptimalValueThread = gOVThread.getOptimalMultiValueThread(
+            self.getOptimalValueThread = gOVThread.Getoptimalmultivaluethread(
                     self.parameterClass, self.ob, self.algorithmSelection,
                     self.xTol, self.fTol,self.isSimulation)
 #            print("pass4")
@@ -254,7 +254,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.parameterClass.setNewValues(x)
 
     def done(self):
-#        print("DONE")
+        print("DONE")
         self.runOptimizationButton.setText('Start')
         QMessageBox.information(self, 'Scan succsessful', "Final values at: " +
                                 str(self.parameterClass.getValues()) +

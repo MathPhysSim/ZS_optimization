@@ -5,6 +5,9 @@ Created on Mon May 21 10:48:23 2018
 
 @author: shirlaen
 """
+import os
+
+import datetime
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 import time
 from scipy import optimize
@@ -20,7 +23,7 @@ class CommuticatorSingals(QObject):
     setSubscribtion = pyqtSignal(bool)
 
 
-class getOptimalMultiValueThread(QThread):
+class Getoptimalmultivaluethread(QThread):
 
     def __init__(self, parameterClass, observableParameter, algorithmSelection,
                  xTol, fTol, isSimulation):
@@ -40,23 +43,29 @@ class getOptimalMultiValueThread(QThread):
         self.signals = CommuticatorSingals()
         self.nrCalls = 0
         self.startValues = np.array(self.parameterClass.getStartVector())
-       
+        self.save_path = 'saved_data/'
+        if not os.path.exists(self.save_path):
+            os.makedirs(self.save_path)
+        self.store_name = '{0}{1}.csv'.format(self.save_path, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
         self.updateData(self.startValues, np.nan)
 
         self.xTol = xTol
         self.fTol = fTol
         self.algorithmSelection = algorithmSelection
         self.isSimulation = isSimulation
-        self.limit_feedback_value = 5.
+        self.limit_feedback_value = 5
+
+
 
     def updateData(self, x, intensityValue):
-        print(x)
+        # print('set values', x)
         self.parameterEvolution[self.nrCalls] = np.nan
         self.parameterEvolution.iloc[:-1,
                                      self.nrCalls] = np.array(x).flatten()
         self.parameterEvolution.iloc[-1,
                                      self.nrCalls] = intensityValue
-        print(self.parameterEvolution)
+        # print('values: ', self.parameterEvolution + self.parameterEvolution.iloc[0,:])
+        self.parameterEvolution.to_csv(self.store_name)
 
     def __del__(self):
         self.wait()
@@ -83,39 +92,43 @@ class getOptimalMultiValueThread(QThread):
 #            returnValue = res.x
 #        self.signals.setValues.emit(returnValue.tolist())
         #print(self.xTol, self.fTol)
+        print(self.parameterEvolution)
         self.signals.jobFinished.emit()
         self.signals.setSubscribtion.emit(False)
 
     def _func_obj(self, x):
+        print('Inside _func_obj', x)
         limit_crossed = False
 
-        if self.nrCalls > 0:
-            pervious_setting = self.parameterEvolution.iloc[:-1, self.nrCalls-1]
-            small_change = np.allclose(x, pervious_setting, self.xTol)
+        if self.nrCalls > 1:
+            pervious_settings = self.parameterEvolution.iloc[:-1, self.nrCalls-1]
+            small_change = np.allclose(x, pervious_settings, atol=0.01)
         else:
             small_change = False
+        # small_change = False
 
         for i in range(len(x)):
             if not(np.isnan(self.limits[i]).any()):
                 if (x[i]<self.limits[i][0])|(x[i]>self.limits[i][1]):
-                    limit_crossed = True                
-        self.signals.setValues.emit(x.tolist())
+                    limit_crossed = True
+
+        if not(small_change):
+            self.signals.setValues.emit(x.tolist())
 
         if not(limit_crossed):
             print("_func_obj1")
             # In case of a small change
             if small_change:
-                print("small change")
-                if self.cancelFlag:
-                    self.signals.setSubscribtion.emit(False)
-                    self.terminate()
-                previous_observation = self.parameterEvolution.iloc[-1, self.nrCalls - 1]
-                dataFinal = previous_observation
+                print(30*"small change")
 
-                self.nrCalls += 1
-                self.updateData(x - self.parameterEvolution.iloc[:-1, 0],
-                                dataFinal)
-                self.signals.drawNow.emit()
+                previous_observation = self.parameterEvolution.iloc[:,self.nrCalls-1]
+                print('previous value', previous_observation)
+                dataFinal = previous_observation.iloc[-1]
+
+                # self.nrCalls += 1
+                # self.updateData( previous_observation.iloc[:-1], dataFinal)
+                # self.signals.drawNow.emit()
+                # time.sleep(.1)
                 return dataFinal
 
             else:
@@ -131,8 +144,7 @@ class getOptimalMultiValueThread(QThread):
 
                     dataFinal = self.ob.dataOut
                     self.nrCalls += 1
-                    self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
-                                     dataFinal)
+                    self.updateData(x, dataFinal)
                 else:
                     time.sleep(1)
                     if self.cancelFlag:
@@ -140,12 +152,12 @@ class getOptimalMultiValueThread(QThread):
                         self.terminate()
                     dataFinal = self.simulateObservable(x)
                     self.nrCalls += 1
-                    self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
-                                     dataFinal)
+                    self.updateData(x, dataFinal)
 
                 self.signals.drawNow.emit()
                 return dataFinal
         else:
+            print(25*"!Limit!!!")
             return self.limit_feedback_value
     
     def simulateObservable(self, x):
