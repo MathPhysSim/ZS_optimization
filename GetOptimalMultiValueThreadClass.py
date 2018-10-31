@@ -88,37 +88,63 @@ class getOptimalMultiValueThread(QThread):
 
     def _func_obj(self, x):
         limit_crossed = False
+
+        if self.nrCalls > 0:
+            pervious_setting = self.parameterEvolution.iloc[:-1, self.nrCalls-1]
+            small_change = np.allclose(x, pervious_setting, self.xTol)
+        else:
+            small_change = False
+
         for i in range(len(x)):
             if not(np.isnan(self.limits[i]).any()):
                 if (x[i]<self.limits[i][0])|(x[i]>self.limits[i][1]):
                     limit_crossed = True                
         self.signals.setValues.emit(x.tolist())
+
         if not(limit_crossed):
-            print("_func_obj1")   
-            
-            #In case of real data
-            if( not(self.isSimulation)):
-                self.ob.reset()
-                while(self.ob.dataWait):
+            print("_func_obj1")
+            # In case of a small change
+            if small_change:
+                print("small change")
+                if self.cancelFlag:
+                    self.signals.setSubscribtion.emit(False)
+                    self.terminate()
+                previous_observation = self.parameterEvolution.iloc[-1, self.nrCalls - 1]
+                dataFinal = previous_observation
+
+                self.nrCalls += 1
+                self.updateData(x - self.parameterEvolution.iloc[:-1, 0],
+                                dataFinal)
+                self.signals.drawNow.emit()
+                return dataFinal
+
+            else:
+                #In case of real data
+                if( not(self.isSimulation)):
+                    self.ob.reset()
+                    while(self.ob.dataWait):
+                        if self.cancelFlag:
+                            self.signals.setSubscribtion.emit(False)
+                            self.terminate()
+                        time.sleep(2)
+                    self.ob.dataWait = True
+
+                    dataFinal = self.ob.dataOut
+                    self.nrCalls += 1
+                    self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
+                                     dataFinal)
+                else:
+                    time.sleep(1)
                     if self.cancelFlag:
                         self.signals.setSubscribtion.emit(False)
                         self.terminate()
-                    time.sleep(2)
-                self.ob.dataWait = True
-                
-                dataFinal = self.ob.dataOut
-                self.nrCalls += 1
-                self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
-                                 dataFinal)
-            else:
-                time.sleep(2)
-                dataFinal = self.simulateObservable(x)
-                self.nrCalls += 1
-                self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
-                                 dataFinal)
-            
-            self.signals.drawNow.emit()
-            return dataFinal
+                    dataFinal = self.simulateObservable(x)
+                    self.nrCalls += 1
+                    self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
+                                     dataFinal)
+
+                self.signals.drawNow.emit()
+                return dataFinal
         else:
             return self.limit_feedback_value
     
