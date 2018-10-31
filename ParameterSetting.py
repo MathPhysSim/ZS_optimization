@@ -338,7 +338,7 @@ class scalarClassConstrained():
         return returnValue
 
     def setValue(self, x):
-        print(x)
+        #print(x)
         limit_crossed = False
         if(x<self.limits[0]):
             x = self.limits[0]
@@ -346,7 +346,7 @@ class scalarClassConstrained():
         elif(x>self.limits[1]):
             x = self.limits[1]
             limit_crossed = True
-        print(x)    
+        #print(x)    
 
         self.japc.setParam(self.parameterName, x)
         return limit_crossed

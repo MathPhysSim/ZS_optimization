@@ -64,8 +64,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 
 #        self.visualizeData()
-        self.xTol = 0.01
-        self.fTol = 0.01
+        self.xTol = 0.2
+        self.fTol = 0.4
+        self.isSimulation = True
         self.x0 = []
         self.selectedElement = []
         self.observableTime = np.array([0,0])
@@ -211,6 +212,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
     def runOptimization(self):
         if self.runOptimizationButton.text() == "Start":
+            self.clearPlot()
             self.listWidgetCycle.setEnabled(False)
 #            print("pass0")
             self.parameterClass.resetParameters()
@@ -224,7 +226,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 #            print("pass3")
             self.getOptimalValueThread = gOVThread.getOptimalMultiValueThread(
                     self.parameterClass, self.ob, self.algorithmSelection,
-                    self.xTol, self.fTol)
+                    self.xTol, self.fTol,self.isSimulation)
 #            print("pass4")
             self.getOptimalValueThread.signals.setSubscribtion.connect(
                     self.setSubscribtion)
@@ -246,9 +248,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
             self.runOptimizationButton.setText('Start')
 
     def setValues(self, x):
-        print('Would send', x)
-        x = [2.5]
-        print(x)        
+        #print('Would send', x)
+        #x = [2.5]
+        #print(x)        
         self.parameterClass.setNewValues(x)
 
     def done(self):
@@ -266,8 +268,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
         else:
             self.japc.stopSubscriptions()
 
-    def visualizeData(self):
+    def clearPlot(self):
+        self.plotWidget.canvas.axs[1].clear()
+        self.plotWidget.canvas.axs[0].clear()
 
+    def visualizeData(self):
+        #print("draw")
         plotFrame = self.getOptimalValueThread.parameterEvolution.iloc[:, 1:].T
         self.plotWidget.canvas.axs[1].clear()
         self.plotWidget.canvas.axs[0].clear()
@@ -280,11 +286,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.plotWidget.canvas.axs[0].set_xlabel('Nr of changes')
         self.plotWidget.canvas.axs[1].set_xlabel('Nr of changes')
         self.plotWidget.canvas.axs[0].set_ylabel('parameters (a.u.)')
-        self.plotWidget.canvas.axs[1].set_ylabel(self.observableMethodSelection)
+        self.plotWidget.canvas.axs[1].\
+        set_ylabel(self.observableMethodSelection)
 
         self.plotWidget.canvas.fig.tight_layout()
         self.plotWidget.canvas.draw()
-
+        #print("draw exit")
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message', "Are you sure to quit?",
                                      QMessageBox.Yes | QMessageBox.No,

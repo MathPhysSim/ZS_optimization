@@ -23,7 +23,7 @@ class CommuticatorSingals(QObject):
 class getOptimalMultiValueThread(QThread):
 
     def __init__(self, parameterClass, observableParameter, algorithmSelection,
-                 xTol, fTol):
+                 xTol, fTol, isSimulation):
 
         QThread.__init__(self)
 
@@ -46,7 +46,8 @@ class getOptimalMultiValueThread(QThread):
         self.xTol = xTol
         self.fTol = fTol
         self.algorithmSelection = algorithmSelection
-        self.limit_feedback_value = 1e10
+        self.isSimulation = isSimulation
+        self.limit_feedback_value = 5.
 
     def updateData(self, x, intensityValue):
         print(x)
@@ -64,21 +65,24 @@ class getOptimalMultiValueThread(QThread):
 
         self.signals.setSubscribtion.emit(True)
         x0 = self.startValues
-#        print(self.parameterClass.getStartDirection())
+        print(self.startValues)
+        
         if self.algorithmSelection == 'Powell':
             res = optimize.fmin_powell(self._func_obj, x0, xtol=self.xTol,
-                                       ftol=self.fTol,
-                                       direc=self.parameterClass.
-                                       getStartDirection())
+                                      ftol=self.fTol,
+                                      direc=self.parameterClass.
+                                      getStartDirection())
+            #res = optimize.minimize(self._func_obj, x0, method='powell',options={'disp': True,'direc':np.array([[0.3,0,0,0],[0,0.3,0,0],[0,0,0.3,0],[0,0,0,0.3]]),'ftol':0.5,'xtol':0.3})
             if (len(res.shape) < 0) | (type(res) == float):
                 res = np.array([res])
-            returnValue = res
+#            returnValue = res
         else:
             res = optimize.minimize(self._func_obj, x0, method='Nelder-Mead',
                                     options={'xatol': self.xTol,
                                              'fatol': self.fTol})
-            returnValue = res.x
-        self.signals.setValues.emit(returnValue.tolist())
+#            returnValue = res.x
+#        self.signals.setValues.emit(returnValue.tolist())
+        #print(self.xTol, self.fTol)
         self.signals.jobFinished.emit()
         self.signals.setSubscribtion.emit(False)
 
@@ -90,21 +94,49 @@ class getOptimalMultiValueThread(QThread):
                     limit_crossed = True                
         self.signals.setValues.emit(x.tolist())
         if not(limit_crossed):
+            print("_func_obj1")   
             
-            self.ob.reset()
-            while(self.ob.dataWait):
-                if self.cancelFlag:
-                    self.signals.setSubscribtion.emit(False)
-                    self.terminate()
+            #In case of real data
+            if( not(self.isSimulation)):
+                self.ob.reset()
+                while(self.ob.dataWait):
+                    if self.cancelFlag:
+                        self.signals.setSubscribtion.emit(False)
+                        self.terminate()
+                    time.sleep(2)
+                self.ob.dataWait = True
+                
+                dataFinal = self.ob.dataOut
+                self.nrCalls += 1
+                self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
+                                 dataFinal)
+            else:
                 time.sleep(2)
-            self.ob.dataWait = True
+                dataFinal = self.simulateObservable(x)
+                self.nrCalls += 1
+                self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
+                                 dataFinal)
             
-            dataFinal = self.ob.dataOut
-            self.nrCalls += 1
-            self.updateData(x-self.parameterEvolution.iloc[:-1, 0],
-                            (-1) * self.ob.dataOut)
             self.signals.drawNow.emit()
             return dataFinal
         else:
             return self.limit_feedback_value
+    
+    def simulateObservable(self, x):
+        print('simulateObservable x', x)
+        offset = 1.
+        
+        A0 = np.array([5.,4.,3.,1.,0.5])
+        b0 = [0.5,0.5,0.5,0.5,0.5]
+        
+        #print("comp ",compareArray)
+        
+        y = offset
+        for i in range(len(x)):
+               
+            y=y+A0[i]*(x[i]-b0[i])*(x[i]-b0[i])
+        
+        #TODO: still need to randomise y
+        print("y",y)
+        return y
         

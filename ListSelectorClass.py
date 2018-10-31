@@ -25,8 +25,31 @@ class ListSelector():
 
     parameterList = { "ZS5 down":
                     {"name": "ZS5.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",
-                      "type": "scalar_constrained", 'startDirection': 0.2, 'limits' : [-2, 2]}
-                                 
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
+                    "ZS1 down":
+                    {"name": "ZS1.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
+                    "ZS2 up":
+                    {"name": "ZS2.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
+                    "ZS2 down":
+                    {"name": "ZS2.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
+                     "ZS3 up":
+                    {"name": "ZS3.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
+                     "ZS3 down":
+                    {"name": "ZS3.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
+                     "ZS4 up":
+                    {"name": "ZS4.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
+                     "ZS4 down":
+                    {"name": "ZS4.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
+                     "ZS5 up":
+                    {"name": "ZS5.LSS2.MOTOR/Setting#upstreamAnodeSeptaPosition",
+                      "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]}
                     }
                     
 
