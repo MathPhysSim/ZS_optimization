@@ -101,12 +101,11 @@ class Getoptimalmultivaluethread(QThread):
         limit_crossed = False
 
         if self.nrCalls > 1:
-            pervious_settings = self.parameterEvolution.iloc[:-1, self.nrCalls-1]
-            small_change = np.allclose(x, pervious_settings, atol=0.01)
+            pervious_settings = self.parameterEvolution.iloc[:-1, self.nrCalls]
+            small_change = np.allclose(x, pervious_settings, atol=0.1)
         else:
             small_change = False
-        # small_change = False
-
+  
         for i in range(len(x)):
             if not(np.isnan(self.limits[i]).any()):
                 if (x[i]<self.limits[i][0])|(x[i]>self.limits[i][1]):
@@ -119,9 +118,9 @@ class Getoptimalmultivaluethread(QThread):
             print("_func_obj1")
             # In case of a small change
             if small_change:
-                print(30*"small change")
+                print(5*"small change")
 
-                previous_observation = self.parameterEvolution.iloc[:,self.nrCalls-1]
+                previous_observation = self.parameterEvolution.iloc[:,self.nrCalls]
                 print('previous value', previous_observation)
                 dataFinal = previous_observation.iloc[-1]
 

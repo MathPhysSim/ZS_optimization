@@ -56,7 +56,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 #                self.doubleSpinBoxObservableStartTimeChanged)
 #        self.doubleSpinBoxObservableEndTime.valueChanged.connect(
 #                self.doubleSpinBoxObservableEndTimeChanged)
-        self.japc.setSelector("SPS.USER.SFTPRO2")
+        self.japc.setSelector("SPS.USER.SFTPRO1")
         self.japc.subscribeParam("SPSQC/INTENSITY.PERFORMANCE",
                                  self.onValueRecieved)
 
@@ -95,7 +95,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.listWidget.sortItems()   
         self.listWidget.itemSelectionChanged.connect(self.itemsChanged)
         self.listWidget.itemClicked.connect(self.itemSelected)
-        for itemName in ["SPS.USER.SFTPRO2"]:
+        for itemName in ["SPS.USER.SFTPRO1", "SPS.USER.SFTPRO2"]:
             item = QListWidgetItem(itemName)
             self.listWidgetCycle.addItem(item)
         self.listWidgetCycle.itemClicked.connect(self.itemsClickedCycle)

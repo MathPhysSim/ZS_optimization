@@ -32,8 +32,8 @@ class ObservableClass():
 
         extracted_intensity = np.nan 
         beam_loss = np.nan
-    
-        if(newValue["userName"]=="SPS.USER.SFTPRO2"):
+        
+        if(newValue["userName"]=="SPS.USER.SFTPRO1"):
             #if(self.compareSettings(self.required_x)):
             if(newValue["extractedIntensity"]>5e8):
                 extracted_intensity = newValue["extractedIntensity"]
