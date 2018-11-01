@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="shirlaen@cwe-513-vol543.cern.ch:22" createEmptyFolders="true">
+  <component name="PublishConfigData" autoUpload="Always" serverName="shirlaen@cwe-513-vol543.cern.ch:22" createEmptyFolders="true" uploadOnCheckin="fd8c7f70-7dd5-446e-93dd-f0ac695fe91a">
     <serverData>
       <paths name="shirlaen@cwe-513-vol543.cern.ch:22">
         <serverdata>
@@ -17,6 +17,7 @@
         </serverdata>
       </paths>
     </serverData>
+    <option name="myUploadOnCheckinName" value="shirlaen@cwe-513-vol543.cern.ch:22" />
     <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>
