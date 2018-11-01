@@ -21,12 +21,13 @@ class CommuticatorSingals(QObject):
     jobFinished = pyqtSignal()
     setValues = pyqtSignal(list)
     setSubscribtion = pyqtSignal(bool)
+    showDataOK = pyqtSignal(str)
 
 
 class Getoptimalmultivaluethread(QThread):
 
     def __init__(self, parameterClass, observableParameter, algorithmSelection,
-                 xTol, fTol, isSimulation):
+                 xTol, fTol, xSmall, isSimulation):
 
         QThread.__init__(self)
 
@@ -51,6 +52,7 @@ class Getoptimalmultivaluethread(QThread):
 
         self.xTol = xTol
         self.fTol = fTol
+        self.xSmall = xSmall
         self.algorithmSelection = algorithmSelection
         self.isSimulation = isSimulation
         self.limit_feedback_value = 5
@@ -93,6 +95,7 @@ class Getoptimalmultivaluethread(QThread):
 #        self.signals.setValues.emit(returnValue.tolist())
         #print(self.xTol, self.fTol)
         print(self.parameterEvolution)
+        self.signals.showDataOK.emit("Acquisition ok?")
         self.signals.jobFinished.emit()
         self.signals.setSubscribtion.emit(False)
 
@@ -102,7 +105,7 @@ class Getoptimalmultivaluethread(QThread):
 
         if self.nrCalls > 1:
             pervious_settings = self.parameterEvolution.iloc[:-1, self.nrCalls]
-            small_change = np.allclose(x, pervious_settings, atol=0.1)
+            small_change = np.allclose(x, pervious_settings, atol=self.xSmall)
         else:
             small_change = False
   
@@ -129,7 +132,7 @@ class Getoptimalmultivaluethread(QThread):
                 # self.signals.drawNow.emit()
                 # time.sleep(.1)
                 return dataFinal
-
+                self.signals.showDataOK.emit("Small")
             else:
                 #In case of real data
                 if( not(self.isSimulation)):
@@ -148,15 +151,18 @@ class Getoptimalmultivaluethread(QThread):
                     time.sleep(1)
                     if self.cancelFlag:
                         self.signals.setSubscribtion.emit(False)
+                        self.signals.showDataOK.emit("Acquisition ok?")
                         self.terminate()
                     dataFinal = self.simulateObservable(x)
                     self.nrCalls += 1
                     self.updateData(x, dataFinal)
 
                 self.signals.drawNow.emit()
+                self.signals.showDataOK.emit("OK")
                 return dataFinal
         else:
             print(25*"!Limit!!!")
+            self.signals.showDataOK.emit("!Limit!!!")
             return self.limit_feedback_value
     
     def simulateObservable(self, x):

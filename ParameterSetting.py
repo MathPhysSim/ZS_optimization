@@ -32,18 +32,17 @@ class ParameterClass():
         startVec = []
         for key in self.memberParameters:
             startVec.append(self.memberParameters[key].parameterStartDirection)
-        print(10*'test')
+        print('start direction')
         print(np.diag(startVec))
-        print(10*'test')
         return np.diag(startVec)
 
     def get_limits(self):
         limits = []
         for key in self.memberParameters:
             limits.append(self.memberParameters[key].limit)
-        print(10*'limits')
+        print('hard limits')
         print(limits)
-        print(10*'limits')
+        print('hard limits')
         return limits
     
     def setNewValues(self, x):

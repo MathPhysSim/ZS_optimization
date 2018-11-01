@@ -429,7 +429,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>ZS Optimizer V 0.0.1</string>
+   <string>ZS Optimizer V 0.0.2</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -447,7 +447,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>500</width>
+        <width>700</width>
         <height>0</height>
        </size>
       </property>
@@ -533,14 +533,14 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
              <string>fTol</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="2" column="1">
            <widget class="QDoubleSpinBox" name="spinBoxFTolValue">
             <property name="minimumSize">
              <size>
@@ -569,6 +569,29 @@
            <widget class="QLabel" name="label">
             <property name="text">
              <string>xTol</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxXSmall">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="decimals">
+             <number>5</number>
+            </property>
+            <property name="singleStep">
+             <double>0.000100000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>x small limit</string>
             </property>
            </widget>
           </item>
@@ -689,11 +712,31 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="labelDataOK">
+        <property name="font">
+         <font>
+          <family>URW Gothic L</family>
+          <pointsize>16</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Acquisition ok?</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
-          <family>AR PL UMing CN</family>
-          <pointsize>20</pointsize>
+          <family>URW Gothic L</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
          </font>
         </property>
         <property name="frameShape">

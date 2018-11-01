@@ -17,7 +17,7 @@ from sceleton import Ui_MainWindow
 
 class MyApp(QMainWindow, Ui_MainWindow):
 
-    japc = pyjapc.PyJapc(incaAcceleratorName="SPS", noSet=True)
+    japc = pyjapc.PyJapc(incaAcceleratorName="SPS", noSet=False)
     
 #    japc.rbacLogin()
     averageNrValue = 5.
@@ -43,6 +43,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
                 self.spinBoxXTolValueChanged)
         self.spinBoxFTolValue.valueChanged.connect(
                 self.spinBoxFTolValueChanged)
+        self.doubleSpinBoxXSmall.valueChanged.connect(
+                self.doubleSpinBoxXSmallChanged)
 #        self.spinBoxAverageNr.valueChanged.connect(
 #                self.spinBoxAverageNrChanged)
 #        self.doubleSpinBoxStartTime.valueChanged.connect(
@@ -65,14 +67,16 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 #        self.visualizeData()
         self.xTol = 0.2
-        self.fTol = 0.4
-        self.isSimulation = True
+        self.fTol = 0.1
+        self.xSmall = 0.01
+        self.isSimulation = False
         self.x0 = []
         self.selectedElement = []
         self.observableTime = np.array([0,0])
 
         self.spinBoxXTolValue.setValue(self.xTol)
         self.spinBoxFTolValue.setValue(self.fTol)
+        self.doubleSpinBoxXSmall.setValue(self.xSmall)
 #        self.spinBoxAverageNr.setValue(self.averageNrValue)
         
         self.buttonGroup.buttonClicked.connect(self.buttonGroupSelected)
@@ -102,9 +106,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
         
 
     def itemsClickedCycle(self, id):
-
-        self.japc.setSelector(id.text())
         
+        self.japc.clearSubscriptions()
+        self.japc.setSelector(id.text())  
+        self.ob.selector = self.japc.getSelector()
+        print("Set cycle:", self.ob.selector)
         self.japc.subscribeParam("SPSQC/INTENSITY.PERFORMANCE",
                                  self.onValueRecieved)
  
@@ -201,6 +207,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
     def spinBoxFTolValueChanged(self):
         self.fTol = self.spinBoxFTolValue.value()
+    
+    def doubleSpinBoxXSmallChanged(self):
+        self.xSmall = self.doubleSpinBoxXSmall.value()  
 
     def spinBoxAverageNrChanged(self):
         self.averageNrValue = self.spinBoxAverageNr.value()
@@ -226,7 +235,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 #            print("pass3")
             self.getOptimalValueThread = gOVThread.Getoptimalmultivaluethread(
                     self.parameterClass, self.ob, self.algorithmSelection,
-                    self.xTol, self.fTol,self.isSimulation)
+                    self.xTol, self.fTol, self.xSmall ,self.isSimulation)
 #            print("pass4")
             self.getOptimalValueThread.signals.setSubscribtion.connect(
                     self.setSubscribtion)
@@ -237,7 +246,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
             self.getOptimalValueThread.signals.jobFinished.connect(self.done)
             self.getOptimalValueThread.start()
             self.runOptimizationButton.setText('Cancel')
-
+            
+            self.getOptimalValueThread.signals.showDataOK.\
+                connect(self.changeDataOKLabel)
+                
         elif self.getOptimalValueThread.isRunning():
 
             self.getOptimalValueThread.cancelFlag = True
@@ -246,7 +258,16 @@ class MyApp(QMainWindow, Ui_MainWindow):
             self.getOptimalValueThread.wait()
             self.listWidgetCycle.setEnabled(True)
             self.runOptimizationButton.setText('Start')
-
+            
+    def changeDataOKLabel(self, text):
+        self.labelDataOK.setText(text) 
+        if self.labelDataOK.text() == 'OK':
+            self.labelDataOK.setStyleSheet('color: green')
+        elif self.labelDataOK.text() == 'Acquisition ok?':
+            self.labelDataOK.setStyleSheet('color: white')
+        else:
+            self.labelDataOK.setStyleSheet('color: red')
+            
     def setValues(self, x):
         #print('Would send', x)
         #x = [2.5]
