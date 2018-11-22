@@ -21,12 +21,13 @@ class CommuticatorSingals(QObject):
     jobFinished = pyqtSignal()
     setValues = pyqtSignal(list)
     setSubscribtion = pyqtSignal(bool)
+    showDataOK = pyqtSignal(str)
 
 
 class Getoptimalmultivaluethread(QThread):
 
     def __init__(self, parameterClass, observableParameter, algorithmSelection,
-                 xTol, fTol, isSimulation):
+                 xTol, fTol, xSmall, isSimulation):
 
         QThread.__init__(self)
 
@@ -51,6 +52,7 @@ class Getoptimalmultivaluethread(QThread):
 
         self.xTol = xTol
         self.fTol = fTol
+        self.xSmall = xSmall
         self.algorithmSelection = algorithmSelection
         self.isSimulation = isSimulation
         self.limit_feedback_value = 5
@@ -93,6 +95,7 @@ class Getoptimalmultivaluethread(QThread):
 #        self.signals.setValues.emit(returnValue.tolist())
         #print(self.xTol, self.fTol)
         print(self.parameterEvolution)
+        self.signals.showDataOK.emit("Acquisition ok?")
         self.signals.jobFinished.emit()
         self.signals.setSubscribtion.emit(False)
 
@@ -101,12 +104,11 @@ class Getoptimalmultivaluethread(QThread):
         limit_crossed = False
 
         if self.nrCalls > 1:
-            pervious_settings = self.parameterEvolution.iloc[:-1, self.nrCalls-1]
-            small_change = np.allclose(x, pervious_settings, atol=0.01)
+            pervious_settings = self.parameterEvolution.iloc[:-1, self.nrCalls]
+            small_change = np.allclose(x, pervious_settings, atol=self.xSmall)
         else:
             small_change = False
-        # small_change = False
-
+  
         for i in range(len(x)):
             if not(np.isnan(self.limits[i]).any()):
                 if (x[i]<self.limits[i][0])|(x[i]>self.limits[i][1]):
@@ -119,9 +121,9 @@ class Getoptimalmultivaluethread(QThread):
             print("_func_obj1")
             # In case of a small change
             if small_change:
-                print(30*"small change")
+                print(5*"small change")
 
-                previous_observation = self.parameterEvolution.iloc[:,self.nrCalls-1]
+                previous_observation = self.parameterEvolution.iloc[:,self.nrCalls]
                 print('previous value', previous_observation)
                 dataFinal = previous_observation.iloc[-1]
 
@@ -130,7 +132,7 @@ class Getoptimalmultivaluethread(QThread):
                 # self.signals.drawNow.emit()
                 # time.sleep(.1)
                 return dataFinal
-
+                self.signals.showDataOK.emit("Small")
             else:
                 #In case of real data
                 if( not(self.isSimulation)):
@@ -149,15 +151,18 @@ class Getoptimalmultivaluethread(QThread):
                     time.sleep(1)
                     if self.cancelFlag:
                         self.signals.setSubscribtion.emit(False)
+                        self.signals.showDataOK.emit("Acquisition ok?")
                         self.terminate()
                     dataFinal = self.simulateObservable(x)
                     self.nrCalls += 1
                     self.updateData(x, dataFinal)
 
                 self.signals.drawNow.emit()
+                self.signals.showDataOK.emit("OK")
                 return dataFinal
         else:
             print(25*"!Limit!!!")
+            self.signals.showDataOK.emit("!Limit!!!")
             return self.limit_feedback_value
     
     def simulateObservable(self, x):

@@ -23,7 +23,10 @@ Created on Tue Jun  5 21:30:16 2018
         #japc.setParam("ZS.LSS2.GIRDER/Setting#downstreamSeptaPosition",x[0])
 class ListSelector():
 
-    parameterList = { "ZS5 down":
+    parameterList = { 
+#            "NORTH_EXTRBEAM/MD_2018_LSE_1deg":
+#                        {"name": "NORTH_EXTRBEAM/MD_2018_LSE_1deg","type": "scalar", 'startDirection': 0.3}, 
+                    "ZS5 down":
                     {"name": "ZS5.LSS2.MOTOR/Setting#downstreamAnodeSeptaPosition",
                       "type": "scalar_constrained", 'startDirection': 0.3, 'limits' : [-2, 2]},
                     "ZS1 down":

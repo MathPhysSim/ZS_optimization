@@ -16,7 +16,7 @@ class MplCanvas(Canvas):
         self.axs = [0, 0, 0]
         self.axs[0] = self.fig.add_subplot(211)
         self.axs[1] = self.fig.add_subplot(212, sharex=self.axs[0])
-        self.axs[2] = self.axs[1].twinx()
+#        self.axs[2] = self.axs[1].twinx()
         Canvas.__init__(self, self.fig)
         Canvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding,
                              QtWidgets.QSizePolicy.Expanding)
