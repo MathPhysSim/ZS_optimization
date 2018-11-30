@@ -36,6 +36,7 @@ class ObservableClass():
         if(newValue["userName"]==self.selector):
             #if(self.compareSettings(self.required_x)):
             if(newValue["extractedIntensity"]>1e10):
+                print('new value received')
                 extracted_intensity = newValue["extractedIntensity"]
                 beam_loss =0.0
                 lossRange = np.arange(6)

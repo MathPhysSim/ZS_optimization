@@ -20,7 +20,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
     japc = pyjapc.PyJapc(incaAcceleratorName="SPS", noSet=False)
     
 #    japc.rbacLogin()
-    averageNrValue = 5.
+    averageNrValue = 1.
     parameterClass = pc.ParameterClass(japc)
     algorithmSelection = 'Powell'
     observableMethodSelection = 'Maximum'
@@ -99,7 +99,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.listWidget.sortItems()   
         self.listWidget.itemSelectionChanged.connect(self.itemsChanged)
         self.listWidget.itemClicked.connect(self.itemSelected)
-        for itemName in ["SPS.USER.SFTPRO1", "SPS.USER.SFTPRO2"]:
+        for itemName in ["SPS.USER.SFTPRO1", "SPS.USER.SFTPRO2", "SPS.USER.SFTION1"]:
             item = QListWidgetItem(itemName)
             self.listWidgetCycle.addItem(item)
         self.listWidgetCycle.itemClicked.connect(self.itemsClickedCycle)
